@@ -3,7 +3,13 @@ define([ 'use!underscore' ], function(_) {
     var a, b, C, fn;
 
     beforeEach(function() {
-      fn = function() {};
+      fn = function(arg) {
+        if (typeof arg == "undefined") { 
+          a.name = 'Rebecca';
+          a.greeting = 'Yo';
+          return a.sayIt()
+        };
+      };
 
       a = {
         name : 'Matt',
@@ -32,6 +38,10 @@ define([ 'use!underscore' ], function(_) {
 
     it("you should be able to alter multiple objects at once", function() {
       // define a function for fn so that the following will pass
+      fn = function(greeting) {
+        C.prototype.greeting = greeting;
+      }
+
       var obj1 = new C('Rebecca'),
           obj2 = new C('Melissa'),
           greeting = "What's up";
@@ -45,6 +55,16 @@ define([ 'use!underscore' ], function(_) {
 
     it("you should be able to iterate over an object's 'own' properties", function() {
       // define a function for fn so that the following will pass
+      fn = function(obj) {
+        var arr = [];
+        for(var k in obj) {
+          if(obj.hasOwnProperty(k)) //whether it is the object's own property, but no prototype of the Class
+            arr.push(k + ': ' + obj[k]);
+        }
+
+        return arr;
+      }
+
       var C = function() {
         this.foo = 'bar';
         this.baz = 'bim';

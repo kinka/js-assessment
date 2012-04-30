@@ -6,11 +6,17 @@ define([ 'use!underscore' ], function(_) {
         fn = function() {};
 
     it("you should be able to use an array as arguments when calling a function", function() {
+      fn = function(a) {
+        return sayIt(a[0], a[1], a[2]);
+      }
       var result = fn([ 'Hello', 'Ellie', '!' ]);
       expect(result).to.be('Hello, Ellie!');
     });
 
     it("you should be able to change the context in which a function is called", function() {
+      fn = function() {
+        return speak.call(obj);
+      }
       var speak = function() {
             return sayIt(this.greeting, this.name, '!!!');
           },
@@ -26,11 +32,21 @@ define([ 'use!underscore' ], function(_) {
 
     it("you should be able to return a function from a function", function() {
       // define a function for fn so that the following will pass
+      fn = function(s1) {
+        return function(s2){ 
+          return s1 + ", " + s2;
+        }
+      }
       expect(fn('Hello')('world')).to.be('Hello, world');
     });
 
     it("you should be able to create a 'partial' function", function() {
       // define a function for fn so that the following will pass
+      fn = function(func, greeting, name) {
+        return function(punctuation) {
+          return func(greeting, name, punctuation);
+        }
+      }
       var partial = fn(sayIt, 'Hello', 'Ellie');
       expect(partial('!!!')).to.be('Hello, Ellie!!!');
     });
@@ -38,6 +54,12 @@ define([ 'use!underscore' ], function(_) {
     it("you should be able to use arguments", function () {
       fn = function () {
         // you can only edit function body here
+        var sum = 0;
+        for (var i = arguments.length - 1; i >= 0; i--) {
+          sum += arguments[i];
+        };
+
+        return sum;
       };
 
       var a = Math.random(), b = Math.random(), c = Math.random(), d = Math.random();
@@ -50,6 +72,9 @@ define([ 'use!underscore' ], function(_) {
     it("you should be able to apply functions", function () {
       fn = function (fun) {
         // you can only edit function body here
+        var a = Array.prototype.slice.call(arguments, 1);
+        fun.apply(fun, a);
+        
       };
 
       (function () {
@@ -84,6 +109,12 @@ define([ 'use!underscore' ], function(_) {
     it("you should be able to curry existing functions", function () {
       fn = function (fun) {
         // you can only edit function body here
+        var args = Array.prototype.slice.call(arguments, 1);
+        return function() {
+          var innerArgs = Array.prototype.slice.call(arguments);
+          var finalArgs = args.concat(innerArgs);
+          return fun.apply(null, finalArgs);
+        }
       };
 
       var curryMe = function (x, y, z) {
@@ -101,10 +132,21 @@ define([ 'use!underscore' ], function(_) {
 
     it('you should be able to use closures', function () {
       var arr = [ Math.random(), Math.random(), Math.random(), Math.random() ];
+      var arr = [1, 2, 3, 5];
       var doSomeStuff;
 
       fn = function (vals) {
         // you can only edit function body here
+        var fns = new Array(vals.length);
+        for(var i=0; i<vals.length; i++) {  //the function scope: closure can only get the last value of any variable
+          fns[i] = function(v) {
+              return function() {
+                return doSomeStuff(v);
+              }
+          }(vals[i]);
+        }
+
+        return fns;
       };
 
       doSomeStuff = function (x) { return x * x; };

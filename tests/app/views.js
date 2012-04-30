@@ -18,6 +18,9 @@ define([ 'use!backbone', 'use!underscore', 'jquery' ], function(Backbone, _, $) 
         template : tpl,
         render : function() {
           // write code here to make the tests below pass
+          var template = _.template(tpl, {greeting: model.get('greeting')});
+          this.el = $('#test');
+          this.el.html(template);
         }
       });
 
@@ -34,11 +37,16 @@ define([ 'use!backbone', 'use!underscore', 'jquery' ], function(Backbone, _, $) 
         // fill in the code required in the initialize and render methods
         // to make the tests below pass
         initialize : function() {
-
+            var self = this;
+            model.bind("change:greeting", function(){
+              self.render();
+            });
         },
         template : tpl,
         render : function() {
-
+          var template = _.template(tpl, {greeting: model.get('greeting')});
+          this.el = $('#test');
+          this.el.html(template);
         }
       });
 

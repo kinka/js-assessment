@@ -11,6 +11,10 @@ define([ 'jquery', 'use!underscore' ], function($, _) {
 
       fn = function() {
         // write a function that makes the test pass
+        var def = $.Deferred();
+        def.resolve(true);
+
+        return def;
       };
 
       fn().then(function(result) {
@@ -34,7 +38,31 @@ define([ 'jquery', 'use!underscore' ], function($, _) {
       // tests function once the data has been a) retrieved from the server and
       // b) manipulated so the tests will pass.
 
-      tests();
+      fn = function() {
+        var def = $.Deferred();
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+
+        xhr.onload = function(e) {
+          if(this.status === 200) {
+            var result = JSON.parse(this.responseText);
+            def.resolve(result);
+          }
+        }
+
+        xhr.onerror = function(e) {
+          def.reject(e);
+        }
+
+        xhr.send();
+
+        return def;
+      };
+
+      fn().then(function(result) {
+        peopleArray = result.people;
+        done();
+      });
     });
   });
 });
